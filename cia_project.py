@@ -1,4 +1,4 @@
-import configparser
+import ConfigParser
 import base64
 import sys
 import socket
@@ -6,16 +6,19 @@ import select
 import os
 import hashlib
 import signal
-import col
 import title
+from random import choice
 from time import sleep
+from col import Colours as C
+from col import Colours_list as Rcolour
 from Crypto.Cipher import AES
 
+myColour = choice(Rcolour())
 os.system("clear")
 
 def sigint_handler(signum, frame):
-    print '\n user interrupt ! shutting down'
-    print "quitting session\n\n"
+    print('\n user interrupt ! shutting down')
+    print("quitting session\n\n")
     sys.exit()	
 signal.signal(signal.SIGINT, sigint_handler)
 
@@ -47,7 +50,7 @@ def decrypt(secret,data):
 
 def chat_client():
     if(len(sys.argv) < 5) :
-        print 'Usage : python cia_chat.py <hostname> <port> <password> <nick_name>'
+        print('Usage : python cia_chat.py <hostname> <port> <password> <nick_name>')
         sys.exit()
     host = sys.argv[1]
     port = int(sys.argv[2])
@@ -59,10 +62,11 @@ def chat_client():
     try :
         s.connect((host, port))
     except :
-        print "\033[91m"+'Unable to connect'+"\033[0m"
+        print("{}Unable to connect{}".format(C.red, C.end))
         sys.exit()
-    print "Connected to remote host. You can start sending messages"
-    sys.stdout.write("\033[34m"+'\n[Me :] '+ "\033[0m"); sys.stdout.flush()
+    title.Title()
+    print("Username set to {}; your colour is [{}colour{}]".format(uname, myColour, C.end))
+    sys.stdout.write("{}\nMe >> {}".format(C.red, C.end)); sys.stdout.flush()
     while 1:
         socket_list = [sys.stdin, s]
         read_sockets, write_sockets, error_sockets = select.select(socket_list , [], [])
@@ -70,18 +74,18 @@ def chat_client():
             if sock == s:
                 data = sock.recv(4096)
                 if not data :
-                    print "\033[91m"+"\nDisconnected from chat server"+"\033[0m"
+                    print("{}\nDisconnected from chat server{}".format(C.red, C.end))
                     sys.exit()
                 else :
                     data = decrypt(key,data)
                     sys.stdout.write(data)
-                    sys.stdout.write("\033[34m"+'\n[Me :] '+ "\033[0m"); sys.stdout.flush()
+                    sys.stdout.write("{}\nMe >> {}".format(C.red, C.end)); sys.stdout.flush()
             else :
                 msg = sys.stdin.readline()
-                msg = '[ '+ uname +': ] '+msg
+                msg = "{}<{}> {}{}".format(myColour, uname, msg, C.end)
                 msg = encrypt(key,msg)
                 s.send(msg)
-                sys.stdout.write("\033[34m"+'\n[Me :] '+ "\033[0m"); sys.stdout.flush()
+                sys.stdout.write("{}\nMe >> {}".format(C.red, C.end)); sys.stdout.flush()
 
 if __name__ == "__main__":
     sys.exit(chat_client())

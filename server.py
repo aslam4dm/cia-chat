@@ -74,7 +74,6 @@ def decrypt(secret,data):
 
 config = configparser.RawConfigParser()   
 config.read(r'cia-chat.conf')
-
 HOST = config.get('config', 'HOST')
 PORT = int(config.get('config', 'PORT'))
 PASSWORD = config.get('config', 'PASSWORD')
@@ -96,8 +95,8 @@ def chat_client():
 	        if sock == server_socket:
 	            sockfd, addr = server_socket.accept()
 	            SOCKET_LIST.append(sockfd)
-	            print("user (%s, %s) connected" % addr)
-	            broadcast(server_socket, sockfd, encrypt(key,"[%s:%s] entered our chatting room\n" % addr))
+	            print("user {} connected".format(addr))
+	            broadcast(server_socket, sockfd, encrypt(key,"\n{} entered our chatting room\n".format(addr)))
 	        else:
 	            try:
 	                data = sock.recv(RECV_BUFFER)
@@ -109,9 +108,9 @@ def chat_client():
 	                else:
 	                    if sock in SOCKET_LIST:
 	                        SOCKET_LIST.remove(sock)
-	                    broadcast(server_socket, sock,encrypt(key,"user (%s, %s) is offline\n" % addr))
+	                    broadcast(server_socket, sock,encrypt(key,"user {}, is offline\n".format(addr)))
 	            except:
-	                broadcast(server_socket, sock, "user (%s, %s) is offline\n" % addr)
+	                broadcast(server_socket, sock, "user {}, is offline\n".format(addr))
 	                continue
 	server_socket.close()
 
